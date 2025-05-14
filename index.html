@@ -1,0 +1,75 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pi Tip Jar</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #5423A0;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #6f36c1;
+    }
+    #welcome {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Send Me a Tip in Pi!</h1>
+  <button onclick="loginWithPi()">Login with Pi</button>
+  <div id="welcome"></div>  <script>
+    async function loginWithPi() {
+      Pi.init({ version: "2.0", sandbox: true });
+
+      Pi.authenticate([
+        "username",
+        "payments"
+      ],
+      function(authResult) {
+        document.getElementById("welcome").innerText =
+          `Welcome, ${authResult.user.username}! Sending tip...`;
+
+        Pi.createPayment({
+          amount: 1,
+          memo: "Thanks for your support!",
+          metadata: { type: "tip" }
+        }, {
+          onReadyForServerApproval: function(paymentId) {
+            console.log("Payment Ready", paymentId);
+          },
+          onCancel: function(paymentId) {
+            console.log("Cancelled", paymentId);
+          },
+          onComplete: function(paymentId, txid) {
+            console.log("Payment Complete", paymentId, txid);
+          }
+        });
+
+      },
+      function(error) {
+        console.error("Login failed", error);
+      });
+    }
+  </script></body>
+</html>
